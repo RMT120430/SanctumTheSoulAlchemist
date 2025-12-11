@@ -1295,7 +1295,7 @@ window.addEventListener('load', function() {
         showCustomConfirm("「即將清空聖域。確定執行？」", () => {
             // 再次確認 (Double Confirmation)
             setTimeout(() => {
-                const doubleCheck = confirm("「這項操作將徹底清空並重塑聖域。是否繼續？」(請記得在清除後關閉並重啟本程式。)");
+                const doubleCheck = confirm("「這項操作將徹底清空並重塑聖域。是否繼續？」");
                 if (doubleCheck) {
                     localStorage.clear();
                     showCustomAlert("「聖域已重塑為初始狀態。」", "ALL RESET");
