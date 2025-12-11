@@ -1,0 +1,24 @@
+{
+  "name": "心靈聖域：煉金術士",
+  "short_name": "STSA",
+  "description": "Sanctum: The Soul Alchemist",
+  "start_url": "/SanctumTheSoulAlchemist/",
+  "display": "standalone",
+  "background_color": "#1a1a20",
+  "theme_color": "#050507",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/SanctumTheSoulAlchemist/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/SanctumTheSoulAlchemist/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
