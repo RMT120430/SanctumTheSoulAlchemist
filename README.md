@@ -1,3 +1,5 @@
+![image](https://cdn.imgchest.com/files/182fe29bcdde.png)
+
 # 【STSA】Sanctum The Soul Alchemist（心靈聖域 煉金術士）
 這個程式，是我給自己的生日禮物。
 致今年過29歲生日的自己，明天以後請答應我，守護並珍惜那——如水晶般閃爍微光的你。
@@ -75,4 +77,5 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 
 along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 
