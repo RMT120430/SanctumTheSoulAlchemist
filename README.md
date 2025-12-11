@@ -5,9 +5,9 @@
 ## 程式大部分的功能都屬於象徵性質
 - 此程式主旨是要訓練正向思考、擺脫拖延迴圈以及釋放內耗情緒。
 
-身為深陷這三種混雜泥沼的自己來說，我很清楚有時候處理情緒是需要自行去努力的事。
-而這程式就是這樣的存在，你必須自己主動去實踐、去煉化、去焚毀。
-最終，我希望這座永遠僅屬於你的心靈聖域能夠永恆純淨。
+- 身為深陷這三種混雜泥沼的自己來說，我很清楚有時候處理情緒是需要自行去努力的事。
+- 而這程式就是這樣的存在，你必須自己主動去實踐、去煉化、去焚毀。
+- 最終，我希望這座永遠僅屬於你的心靈聖域能夠永恆純淨。
 ---
 # 特色簡述與說明
 
@@ -40,7 +40,7 @@ https://dova-s.jp/se/play1026.html
 https://dova-s.jp/_contents/agreement/
 ---
 ## PC離線安裝版
-清除資料後需要手動再重啟程式，不然會有沒辦法打字的小Bug
+- 清除資料後需要手動再重啟程式，不然會有沒辦法打字的小Bug
 ---
 ## GitHub (原始碼)
 https://github.com/RMT120430/SanctumTheSoulAlchemist
@@ -72,4 +72,5 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
+
 along with this program. If not, see <https://www.gnu.org/licenses/>.
