@@ -39,8 +39,9 @@
 https://dova-s.jp/se/play1026.html
 https://dova-s.jp/_contents/agreement/
 ---
-## PC離線安裝版
+## PC離線安裝版/免安裝版
 - 清除資料後需要手動再重啟程式，不然會有沒辦法打字的小Bug
+- 下載連結: https://drive.google.com/drive/folders/1G5Ab6I6NRBeRfdXj8eEEMYGUQVRhHP4G?usp=sharing
 ---
 ## GitHub (原始碼)
 https://github.com/RMT120430/SanctumTheSoulAlchemist
@@ -74,3 +75,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 
 along with this program. If not, see <https://www.gnu.org/licenses/>.
+
