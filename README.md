@@ -48,7 +48,7 @@ https://dova-s.jp/_contents/agreement/
 ## GitHub (原始碼)
 https://github.com/RMT120430/SanctumTheSoulAlchemist
 
-## 線上使用 (可以加進手機端印用程式化)
+## 線上使用 (可以加進手機端/應用程式化)
 https://rmt120430.github.io/SanctumTheSoulAlchemist/
 ---
 ## License
@@ -80,6 +80,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 
 along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 
 
 
