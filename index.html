@@ -360,6 +360,7 @@
                 <div class="timer-display" id="timer">25:00</div>
                 <button class="action-btn" style="text-shadow: 0 0 16px var(--active-color);" id="btn-start" onclick="openTaskModal()">CRYSTAL CHARGING (水晶充能)</button>
                 <button class="action-btn" style="margin-top: 10px; border: none; color: #666; font-size: 0.8rem; text-shadow: none;" onclick="reduceDifficulty()">▼ REDUCE (時間減半) ▼</button>
+                <button class="action-btn" id="btn-early-end" style="display:none; margin-top: 10px; border: 1px solid rgba(166,93,102,0.4); color: var(--color-alert); font-size: 0.8rem; text-shadow: 0 0 8px var(--color-alert);" onclick="earlyEndTimer()">◼ END SESSION (提早結束)</button>
                 <button class="action-btn" style="margin-top: 5px; border: none; color: #444; font-size: 0.7rem; text-shadow: none;" onclick="resetCrystalSlots()">[ RESET (重置水晶進度) ]</button>
             </div>
 
@@ -943,6 +944,7 @@ window.addEventListener('load', function() {
             document.getElementById('btn-start').style.borderColor = "var(--color-alert)";
             document.getElementById('btn-start').style.color= "var(--color-alert)";
             document.getElementById('btn-start').style.textShadow= "var(--color-alert)";
+            document.getElementById('btn-early-end').style.display = "block"; // 顯示提早結束按鈕
             
             State.timer = setInterval(() => {
                 State.timeLeft--;
@@ -958,8 +960,19 @@ window.addEventListener('load', function() {
     }
     
     function reduceDifficulty() { 
+        if (!State.timer) return; // 只有計時中才能減半
+        // 只減少剩餘時間；sessionDuration 保持原始值，completeCycle 會自動計算實際已用時間
         State.timeLeft = Math.floor(State.timeLeft / 2); 
-        State.sessionDuration = State.timeLeft; //若減少時間，紀錄的時長也應同步更新
+    }
+
+    function earlyEndTimer() {
+        if (!State.timer) return; // 若計時器未啟動則略過
+        showCustomConfirm("「確定要提早結束本次充能嗎？」", () => {
+            // timeLeft 設為 sessionDuration，讓 completeCycle 計算出 actualDuration = 0 會有問題
+            // 正確做法：直接呼叫 completeCycle，此時 timeLeft 仍保有剩餘秒數
+            // completeCycle 已改為: actualDuration = sessionDuration - timeLeft
+            completeCycle();
+        }, "EARLY END SESSION");
     }
 
     function completeCycle() {
@@ -976,9 +989,10 @@ window.addEventListener('load', function() {
             audio.play().catch(e => console.log("Audio play prevented:", e));
         }
 
-        // 計算實際紀錄的時長字串
-        const durM = Math.floor(State.sessionDuration / 60).toString().padStart(2,'0');
-        const durS = (State.sessionDuration % 60).toString().padStart(2,'0');
+        // 計算實際已使用的時長 (總時長 - 剩餘時間)
+        const actualDuration = State.sessionDuration - State.timeLeft;
+        const durM = Math.floor(actualDuration / 60).toString().padStart(2,'0');
+        const durS = (actualDuration % 60).toString().padStart(2,'0');
         const durationStr = `${durM}:${durS}`;
 
         // 儲存水晶紀錄
@@ -1001,6 +1015,8 @@ window.addEventListener('load', function() {
         document.getElementById('btn-start').style.borderColor = "var(--active-color)";
         document.getElementById('btn-start').style.color= "var(--active-color)";
         document.getElementById('btn-start').style.textShadow= "var(--active-color)";
+        document.getElementById('btn-early-end').style.display = "none"; // 隱藏提早結束按鈕
+        document.getElementById('timer').innerText = "25:00"; // 重置計時器顯示
         document.getElementById('micro-task-input').value = ""; // 清空輸入
     }
 
@@ -1295,7 +1311,7 @@ window.addEventListener('load', function() {
         showCustomConfirm("「即將清空聖域。確定執行？」", () => {
             // 再次確認 (Double Confirmation)
             setTimeout(() => {
-                const doubleCheck = confirm("「這項操作將徹底清空並重塑聖域。是否繼續？」");
+                const doubleCheck = confirm("「這項操作將徹底清空並重塑聖域。是否繼續？」(請記得在清除後關閉並重啟本程式。)");
                 if (doubleCheck) {
                     localStorage.clear();
                     showCustomAlert("「聖域已重塑為初始狀態。」", "ALL RESET");
@@ -1307,5 +1323,6 @@ window.addEventListener('load', function() {
         }, "CRITICAL WARNING");
     }
 </script>
+
 </body>
 </html>
