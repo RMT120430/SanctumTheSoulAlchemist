@@ -1,5 +1,96 @@
 ![image](https://cdn.imgchest.com/files/182fe29bcdde.png)
 
+# 【STSA】Sanctum The Soul Alchemist
+
+This program is a birthday gift to myself.
+To myself turning 29 this year — from tomorrow onwards, please promise me this: protect and cherish that part of you that shimmers like crystal in the light.
+
+---
+## Current Version: v3.9.5
+---
+## Most features of this program are symbolic in nature
+
+- The core purpose of this program is to cultivate positive thinking, break free from procrastination loops, and release internally draining emotions.
+
+- As someone who has been deeply stuck in all three of these tangled mires, I know all too well that processing emotions is something you have to work at yourself.
+- This program exists for exactly that reason — you must actively put it into practice, alchemize, and incinerate.
+- In the end, I hope this Sanctum — forever and only yours — remains eternally pure.
+
+---
+# Feature Overview
+
+## [ Overall ]
+- **Privacy Spell:** Password lock functionality to prevent others from prying on your Sanctum's records. Once locked, all recorded text will appear as symbols or garbled characters.
+- **Time Phase Customization:** The Sanctum divides a day into four phases — *Creation* (time to let yourself shine), *Social* (passive but necessary connection with the world), *Barrier* (forced silence after the noise), and *Void* (absolute rest). Each phase can be configured to your needs (set start time in 24-hour format).
+- **Flowing Time:** As the day's phases shift, the entire program's color scheme changes accordingly.
+- **Data Transfer:** Provides a backup download function and a one-click clear function.
+
+## [ PAGE 1 ]
+- **Stardust Count:** Accumulate lots of stardust — that's a good thing.
+- **True Phase Clock:** Gives a sense of the day beyond just numbers, and clearly tells you what phase you're currently in.
+- **Social Energy Bar:** Manually track and adjust your social energy to audit yourself. However, when the Barrier and Void phases arrive, the social energy bar will be forcibly locked — no matter how much energy remains, this moment must be reserved for yourself.
+
+## [ PAGE 2 ]
+- **Crystal Charging:** A Pomodoro timer. Train yourself to build a habit of focus — even the smallest task can charge a crystal. You can also halve the duration as needed.
+- **Crystal Compendium:** Successfully charged crystals are archived in the compendium for collection. Visualize all your completed charging records at a glance, and tap a crystal to see its detailed log.
+
+## [ PAGE 3 ]
+- **Alchemical Furnace:** Positive transformation training. Input anything you feel you've wasted time on, things that feel unimportant, or negative thoughts as raw materials. Then think of their positive impact or symbolic meaning and input that as the target product. The final result is recorded and stored below in the Alchemy Log.
+
+## [ PAGE 4 ]
+- **Incinerator:** A negative outlet. Everything that upsets you or any dark thoughts can be burned to ash here. Before destruction, your message will be encrypted and then permanently destroyed — once it's gone, let it go. Stop draining yourself over it.
+
+## [ PAGE 5 ]
+- **Settings Page:** All features mentioned in the Overall section are consolidated here.
+
+---
+## Audio Source (timer.mp3)
+https://dova-s.jp/se/play1026.html
+https://dova-s.jp/_contents/agreement/
+
+---
+## PC Offline Installer / Portable Version
+- After clearing data, you need to manually restart the program, otherwise there is a minor bug where typing becomes unavailable.
+- Download link: https://drive.google.com/drive/folders/1G5Ab6I6NRBeRfdXj8eEEMYGUQVRhHP4G?usp=sharing
+
+---
+## GitHub (Source Code)
+https://github.com/RMT120430/SanctumTheSoulAlchemist
+
+## Online Version (Can be added to mobile / used as an app)
+https://rmt120430.github.io/SanctumTheSoulAlchemist/
+
+---
+## License
+
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+
+- ✅ You can freely use, modify, and distribute this software
+- ✅ You can use it for commercial purposes
+- ✅ You must disclose the source code when distributing
+- ✅ Any modifications must also be GPL-3.0 licensed
+- ✅ You must include the original copyright notice
+
+## Copyright
+
+Copyright (C) 2025 RMT120430
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+---
 # 【STSA】Sanctum The Soul Alchemist（心靈聖域 煉金術士）
 這個程式，是我給自己的生日禮物。
 致今年過29歲生日的自己，明天以後請答應我，守護並珍惜那——如水晶般閃爍微光的你。
@@ -82,8 +173,3 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 
 along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-
-
-
-
