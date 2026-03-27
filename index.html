@@ -15,33 +15,22 @@
     <link rel="icon" href="icon-web.png"/>
     <title>Sanctum: The Soul Alchemist（心靈聖域：煉金術士）</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    
-    <!-- 引入 CryptoJS 進行 AES 加密 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <style>
-        /* --- 0. 核心變數 --- */
         :root {
             --bg-void: #050507;
             --panel-base: #0c0c10;
             --panel-border: #1a1a20;
-            
-            /* 色彩 */
             --color-solar: #c29d7c;
             --color-dusk: #345f4c;
             --color-sanctum: #6a708a;
             --color-void: #4b4a69;
             --color-alert: #774144;
             --color-text-dim: #666;
-
-            /* 字體 */
             --font-rune: 'Courier New', monospace, sans-serif;
             --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-            /* 導航 */
             --nav-height: 70px;
-            
-            /* 光暈 */
             --glow-strength: 1px;
             --glow-spread: 8px;
         }
@@ -49,56 +38,40 @@
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: #000;
-            color: #888;
+            background-color: #000; color: #888;
             font-family: var(--font-ui);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; min-height: 100vh;
         }
-        body::-webkit-scrollbar {display: none;}
-        /* --- 1. 容器佈局 --- */
+        body::-webkit-scrollbar { display: none; }
+
         .app-window {
-            width: 100%;
-            max-width: 450px;
+            width: 100%; max-width: 450px;
             background-color: var(--bg-void);
-            min-height: 100vh;
-            position: relative;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            border-left: 1px solid #111;
-            border-right: 1px solid #111;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            min-height: 100vh; position: relative;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
+            border-left: 1px solid #111; border-right: 1px solid #111;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* 噪音紋理 */
         .app-window::before {
-            content: "";
-            position: fixed;
+            content: ""; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 999;
+            pointer-events: none; z-index: 999;
         }
 
         .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 16px 100px 16px;
-            z-index: 1;
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
+            flex: 1; overflow-y: auto;
+            padding: 20px 16px 100px 16px; z-index: 1;
+            scrollbar-width: none; -ms-overflow-style: none;
         }
         .content-area::-webkit-scrollbar { display: none; }
 
-        /* --- 2. 底部導航列 --- */
         .bottom-nav {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: var(--nav-height);
-            background: rgba(12, 12, 16, 0.95);
+            position: absolute; bottom: 0; left: 0;
+            width: 100%; height: var(--nav-height);
+            background: rgba(12,12,16,0.95);
             border-top: 1px solid var(--panel-border);
             backdrop-filter: blur(10px);
             display: flex; justify-content: space-around; align-items: center;
@@ -108,34 +81,19 @@
         .nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: var(--color-text-dim);
-            font-family: var(--font-rune); font-size: 0.7rem; /* 字體稍微縮小以容納5個 */
+            font-family: var(--font-rune); font-size: 0.7rem;
             cursor: pointer; transition: all 0.5s ease;
-            width: 20%; /* 5個項目，每個20% */
-            height: 100%;
+            width: 20%; height: 100%;
         }
+        .nav-icon { font-size: 1.3rem; margin-bottom: 4px; opacity: 0.5; transition: transform 0.5s; }
+        .nav-item.active { color: var(--active-color); text-shadow: 0 0 8px var(--active-color); }
+        .nav-item.active .nav-icon { opacity: 1; transform: translateY(-2px); }
 
-        .nav-icon {
-            font-size: 1.3rem; margin-bottom: 4px; opacity: 0.5; transition: transform 0.5s;
-        }
-
-        .nav-item.active {
-            color: var(--active-color);
-            text-shadow: 0 0 8px var(--active-color);
-        }
-        .nav-item.active .nav-icon {
-            opacity: 1; transform: translateY(-2px);
-        }
-
-        /* --- 3. 模組通用樣式 --- */
         .module-card {
             background: var(--panel-base);
-            border-left: 2px solid var(--active-color);
-            border-top: 1px solid #222;
-            border-right: 2px solid var(--active-color);
-            border-bottom: 1px solid #222;
-            padding: 20px;
-            margin-bottom: 24px;
-            position: relative;
+            border-left: 2px solid var(--active-color); border-right: 2px solid var(--active-color);
+            border-top: 1px solid #222; border-bottom: 1px solid #222;
+            padding: 20px; margin-bottom: 24px; position: relative;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             transition: border-color 0.8s ease, box-shadow 0.8s ease;
         }
@@ -151,46 +109,34 @@
             background: #000; border: 1px solid #333;
             color: var(--active-color); padding: 12px; width: 100%;
             font-family: var(--font-rune); font-size: 0.8rem;
-            margin-bottom: 10px;
-            transition: box-shadow 0.5s;
+            margin-bottom: 10px; transition: box-shadow 0.5s;
         }
-        .cyber-input:focus {
-            outline: none; border-color: var(--active-color);
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
+        .cyber-input:focus { outline: none; border-color: var(--active-color); box-shadow: 0 0 10px rgba(0,0,0,0.5); }
 
         .action-btn {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
             color: var(--active-color);
             padding: 12px; font-family: var(--font-rune); font-size: 0.9rem;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.5s;
+            cursor: pointer; width: 100%; transition: all 0.5s;
         }
-        .action-btn:hover { background: rgba(106, 112, 138, 0.1); text-shadow: 0 0 8px var(--active-color); }
+        .action-btn:hover { background: rgba(106,112,138,0.1); text-shadow: 0 0 8px var(--active-color); }
         .action-btn:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
 
-        /* --- 設定頁面樣式 --- */
         .settings-row {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 12px; border-bottom: 1px solid #1a1a20; padding-bottom: 8px;
         }
-        .settings-label {
-            font-family: var(--font-rune); font-size: 0.8rem; color: #888;
-        }
+        .settings-label { font-family: var(--font-rune); font-size: 0.8rem; color: #888; }
         .cyber-select {
             background: #050507; color: var(--color-text-dim);
             border: 1px solid #333; padding: 5px 10px;
             font-family: var(--font-rune); font-size: 0.8rem;
-            outline: none;
-            width: 80px; text-align: center;
+            outline: none; width: 80px; text-align: center;
         }
 
-        /* --- PAGE 1: HOME --- */
         .page-section { display: none; animation: fadeIn 0.6s ease; }
         .page-section.active { display: block; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .stardust-counter {
@@ -209,12 +155,9 @@
 
         .locked-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 5, 7, 0.75);
-            backdrop-filter: blur(3px);
-            z-index: 10;
+            background: rgba(5,5,7,0.75); backdrop-filter: blur(3px); z-index: 10;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.8s ease;
+            opacity: 0; pointer-events: none; transition: opacity 0.8s ease;
         }
         .module-card.locked .locked-overlay { opacity: 1; pointer-events: all; }
 
@@ -225,40 +168,28 @@
         .mana-container { width: 100%; height: 6px; background: #111; border-radius: 4px; overflow: hidden; margin: 15px 0; border: 1px solid #222; }
         .mana-bar { height: 100%; background: var(--active-color); width: 100%; transition: width 0.5s ease; box-shadow: 0 0 10px var(--active-color); }
         .mana-btn { width: 35px; height: 35px; border-radius: 50%; transition: 0.5s; border: 1px solid #333; background: transparent; color: #666; display: flex; align-items: center; justify-content: center; cursor: pointer; text-shadow: 0 0 16px var(--color-sanctum); }
-        .mana-btn:hover { background: rgba(106, 112, 138, 0.1); text-shadow: 0 0 8px var(--active-color); }
+        .mana-btn:hover { background: rgba(106,112,138,0.1); text-shadow: 0 0 8px var(--active-color); }
 
-        /* --- PAGE 2: FOCUS (水晶圖鑑) --- */
         .timer-display { font-family: var(--font-rune); font-size: 3.8rem; font-weight: 500; color: #d0d0d0; text-align: center; margin: 25px 0; text-shadow: 0 0 8px var(--color-sanctum); }
         .crystal-slots { display: flex; justify-content: center; gap: 12px; margin-bottom: 15px; }
         .crystal { width: 12px; height: 12px; border: 1px solid #444; transform: rotate(45deg); transition: 0.5s; }
         .crystal.filled { background: var(--active-color); border-color: var(--active-color); box-shadow: 0 0 12px var(--active-color); }
 
-        /* 水晶圖鑑 Grid */
         .crystal-archive-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            row-gap: 45px;
-            column-gap: 0px;
-            padding: 30px;
-            justify-items: center;
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            row-gap: 45px; column-gap: 0; padding: 30px; justify-items: center;
         }
         .archived-crystal {
             width: 24px; height: 24px;
             border: 1px solid var(--active-color);
             background: rgba(255,255,255,0.1);
-            transform: rotate(45deg);
-            cursor: pointer;
-            transition: all 0.5s;
+            transform: rotate(45deg); cursor: pointer; transition: all 0.5s;
             box-shadow: 0 0 5px var(--active-color);
         }
-        .archived-crystal:hover {
-            background: var(--active-color);
-            box-shadow: 0 0 15px var(--active-color);
-        }
+        .archived-crystal:hover { background: var(--active-color); box-shadow: 0 0 15px var(--active-color); }
 
-        /* --- PAGE 3: ALCHEMY --- */
         .archive-item {
-            background: rgba(20, 20, 25, 0.4); border: 1px solid #222; padding: 15px;
+            background: rgba(20,20,25,0.4); border: 1px solid #222; padding: 15px;
             cursor: pointer; transition: all 0.5s; position: relative; overflow: hidden; margin-bottom: 10px;
         }
         .archive-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #444; transition: 0.5s; }
@@ -266,60 +197,59 @@
         .archive-item.expanded::before { background: var(--color-solar); box-shadow: 0 0 8px var(--color-solar); }
         .archive-details { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; font-size: 0.8rem; color: #888; margin-top: 0; border-top: 1px dashed #333; }
         .archive-item.expanded .archive-details { max-height: 120px; margin-top: 10px; padding-top: 10px; }
-        
+
         .delete-btn-small {
             position: absolute; top: 25px; right: 10px;
             color: var(--color-alert); font-size: 1.2rem; cursor: pointer; opacity: 0.6;
         }
         .delete-btn-small:hover { opacity: 1; text-shadow: 0 0 8px var(--color-alert); }
 
-        /* --- PAGE 4: RELEASE --- */
         .incinerator-area { width: 100%; height: 150px; background: #000; border: 1px solid #333; color: #444; padding: 15px; font-family: var(--font-rune); resize: none; margin-bottom: 15px; line-height: 1.5; }
         .incinerator-area:focus { outline: none; border-color: var(--color-alert); }
-        .btn-alert { border-color: rgba(166, 93, 102, 0.3); color: var(--color-alert); }
-        .btn-alert:hover { background: rgba(166, 93, 102, 0.1); text-shadow: 0 0 8px var(--color-alert); }
+        .btn-alert { border-color: rgba(166,93,102,0.3); color: var(--color-alert); }
+        .btn-alert:hover { background: rgba(166,93,102,0.1); text-shadow: 0 0 8px var(--color-alert); }
 
-        /* --- PAGE 5: SETTINGS --- */
-        .settings-status {
-            text-align: center; margin-bottom: 20px; font-family: var(--font-rune);
-        }
-        .status-badge {
-            display: inline-block; padding: 5px 12px; font-size: 0.8rem;
-            border: 1px solid #333; color: #888;
-        }
-        .status-badge.unlocked {
-            border-color: var(--color-dusk); color: var(--color-dusk);
-            text-shadow: 0 0 5px var(--color-dusk);
-        }
-        .status-badge.locked {
-            border-color: var(--color-alert); color: var(--color-alert);
-            text-shadow: 0 0 5px var(--color-alert);
-        }
+        .settings-status { text-align: center; margin-bottom: 20px; font-family: var(--font-rune); }
+        .status-badge { display: inline-block; padding: 5px 12px; font-size: 0.8rem; border: 1px solid #333; color: #888; }
+        .status-badge.unlocked { border-color: var(--color-dusk); color: var(--color-dusk); text-shadow: 0 0 5px var(--color-dusk); }
+        .status-badge.locked { border-color: var(--color-alert); color: var(--color-alert); text-shadow: 0 0 5px var(--color-alert); }
 
-        /* --- Modal --- */
-        /* Z-index 調整: 普通 Modal 200, 警告/確認 Modal 300 確保覆蓋 */
         .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; align-items: center; justify-content: center; }
         .modal.open { display: flex; animation: fadeIn 0.3s; }
-        
-        /* 增加通用 Alert/Confirm 的 Z-Index */
         #generic-alert-modal, #generic-confirm-modal { z-index: 300; }
-
         .modal-box { width: 85%; background: #111; padding: 25px; border-left: 2px solid var(--active-color); border-top: 1px solid #222; border-right: 2px solid var(--active-color); border-bottom: 1px solid #222; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); position: relative; }
 
+        .edit-field {
+            background: transparent; border: none; border-bottom: 1px solid transparent;
+            color: inherit; font-family: inherit; font-size: inherit;
+            text-align: center; width: 100%; padding: 2px 4px;
+            transition: border-color 0.3s; user-select: text;
+        }
+        .edit-field:hover { border-bottom-color: #444; }
+        .edit-field:focus { outline: none; border-bottom-color: var(--active-color); background: rgba(255,255,255,0.03); }
+
+        .duration-input-group {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin: 10px 0 5px 0;
+        }
+        .duration-input-group input {
+            background: #000; border: 1px solid #333; color: var(--active-color);
+            font-family: var(--font-rune); font-size: 0.9rem;
+            width: 50px; text-align: center; padding: 6px 4px;
+        }
+        .duration-input-group input:focus { outline: none; border-color: var(--active-color); }
+        .duration-input-group span { color: #555; font-family: var(--font-rune); font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="app-window">
-    
     <div class="content-area">
-        
-        <!-- PAGE 1: HOME -->
+
         <div id="page-home" class="page-section active">
             <div style="text-align: center; margin-top: 15px;">
                 <div class="stardust-counter">✦ STARDUST: <span id="stardust-display">0</span></div>
             </div>
-
             <div class="chrono-wheel">
                 <svg width="220" height="110" viewBox="0 0 220 110">
                     <path d="M 10 110 A 100 100 0 0 1 210 110" fill="none" stroke="#222" stroke-width="2" />
@@ -331,8 +261,6 @@
                     <div id="real-time" style="text-align:center; color: #666; font-size: 1.8rem; margin-top: 5px; text-shadow: 0 0 8px var(--color-sanctum);">00:00</div>
                 </div>
             </div>
-
-            <!-- Social Mana -->
             <div class="module-card" id="module-social">
                 <div class="locked-overlay" id="social-lock">
                     <svg class="lock-icon-svg" viewBox="0 0 24 24"><path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm11 14H4V10h16v10z"/></svg>
@@ -340,20 +268,16 @@
                 </div>
                 <div class="module-header"><span>⧫ SOCIAL MANA</span><span>SHIELD INTEGRITY ⟠</span></div>
                 <div class="mana-container"><div class="mana-bar" id="mana-bar"></div></div>
-                <div class="mana-controls" style="display:flex; justify-content:space-evenly; align-items:center;">
+                <div style="display:flex; justify-content:space-evenly; align-items:center;">
                     <button class="mana-btn" onclick="adjustMana(-10)">-</button><span style="font-family: var(--font-rune); font-size: 0.8rem; color: #555; line-height: 35px; text-shadow: 0 0 16px var(--color-sanctum);">ENERGY</span><button class="mana-btn" onclick="adjustMana(10)">+</button>
                 </div>
             </div>
-            <div style="text-align:center; color:#444; font-family:var(--font-rune); font-size:0.8rem; margin-top:30px; text-shadow: 0 0 24px var(--color-sanctum);">
-                "You're not lost, but keeping watch over tranquility."<br>「你不是在流浪，而是在守護寧靜。」
-            </div>
+            <div style="text-align:center; color:#444; font-family:var(--font-rune); font-size:0.8rem; margin-top:30px; text-shadow: 0 0 24px var(--color-sanctum);">"You're not lost, but keeping watch over tranquility."<br>「你不是在流浪，而是在守護寧靜。」</div>
         </div>
 
-        <!-- PAGE 2: FOCUS -->
         <div id="page-focus" class="page-section">
             <div class="module-card">
                 <div class="module-header"><span>⧫ POMODORO REACTOR</span><span id="cycle-status">READY ⟠</span></div>
-                <!-- 循環指示燈 (4顆一循環) -->
                 <div class="crystal-slots">
                     <div class="crystal" id="c1"></div><div class="crystal" id="c2"></div><div class="crystal" id="c3"></div><div class="crystal" id="c4"></div>
                 </div>
@@ -363,18 +287,13 @@
                 <button class="action-btn" id="btn-early-end" style="display:none; margin-top: 10px; border: 1px solid rgba(166,93,102,0.4); color: var(--color-alert); font-size: 0.8rem; text-shadow: 0 0 8px var(--color-alert);" onclick="earlyEndTimer()">◼ END SESSION (提早結束)</button>
                 <button class="action-btn" style="margin-top: 5px; border: none; color: #444; font-size: 0.7rem; text-shadow: none;" onclick="resetCrystalSlots()">[ RESET (重置水晶進度) ]</button>
             </div>
-
-            <!-- 水晶圖鑑區 -->
             <div style="padding: 0 5px;">
                 <div class="module-header" style="margin-bottom: 10px;"><span>⧫ CRYSTAL ARCHIVE</span><span>COLLECTION ⟠</span></div>
-                <div id="crystal-archive" class="crystal-archive-grid">
-                    <!-- JS 生成水晶 -->
-                </div>
+                <div id="crystal-archive" class="crystal-archive-grid"></div>
                 <div style="margin-top: 30px; text-align: center; font-size: 0.8rem; color: #444; text-decoration: underline; cursor: pointer;" onclick="clearCrystalLogs()">[ RESET (清空水晶收藏) ]</div>
             </div>
         </div>
 
-        <!-- PAGE 3: ALCHEMY -->
         <div id="page-alchemy" class="page-section">
             <div class="module-card">
                 <div class="module-header"><span>⧫ TRANSMUTATION</span><span>INPUT ⟠</span></div>
@@ -382,7 +301,6 @@
                 <input type="text" style="color:#444; text-align:center;" class="cyber-input" id="alchemy-refined" placeholder="Target (欲煉化的結果)">
                 <button class="action-btn" style="text-shadow: 0 0 16px var(--active-color);" onclick="transmute()">TO TRANSMUTE (煉化)</button>
             </div>
-
             <div style="padding: 0 5px;">
                 <div class="module-header" style="margin-bottom: 10px;"><span>⧫ THE ARCHIVES</span><span>DATA LOGS ⟠</span></div>
                 <div id="archive-shelf" style="margin-top: 15px;"></div>
@@ -390,9 +308,8 @@
             </div>
         </div>
 
-        <!-- PAGE 4: RELEASE -->
         <div id="page-release" class="page-section">
-            <div class="module-card" style="border-left: 2px solid var(--color-alert); border-top: 1px solid #222; border-right: 2px solid var(--color-alert); border-bottom: 1px solid #222;">
+            <div class="module-card" style="border-left: 2px solid var(--color-alert); border-right: 2px solid var(--color-alert);">
                 <div class="module-header"><span>⧫ INCINERATOR</span><span>AUTO-WIPE ⟠</span></div>
                 <textarea class="incinerator-area" id="confess-text" style="text-align:center; font-size:0.8rem;" placeholder="寫下情緒...聖域將在接收後，為你永久銷毀它們。"></textarea>
                 <button class="action-btn btn-alert" onclick="shredEmotion()">INCINERATE (焚毀)</button>
@@ -400,95 +317,44 @@
             <div style="text-align:center; color:#444; font-size:0.8rem; margin-top:30px; font-family:var(--font-rune); text-shadow: 0 0 24px var(--color-sanctum);">"It isn't your fault, you're not so bad."<br>「你並不糟糕，這不是你的錯。」</div>
         </div>
 
-        <!-- PAGE 5: SETTINGS -->
         <div id="page-settings" class="page-section">
             <div class="module-card">
                 <div class="module-header"><span>⧫ SECURITY PROTOCOL</span><span>AES-256 ⟠</span></div>
-                
-                <div class="settings-status">
-                    聖域狀態: <span id="lock-status" class="status-badge locked">LOCKED (加密中)</span>
-                </div>
-
-                <p style="font-size: 0.8rem; color: #666; text-align: center; margin-bottom: 15px;">
-                    設定密碼以解鎖加密內容。<br>若未解鎖，所有紀錄將顯示為亂碼。
-                </p>
-
+                <div class="settings-status">聖域狀態: <span id="lock-status" class="status-badge locked">LOCKED (加密中)</span></div>
+                <p style="font-size: 0.8rem; color: #666; text-align: center; margin-bottom: 15px;">設定密碼以解鎖加密內容。<br>若未解鎖，所有紀錄將顯示為亂碼。</p>
                 <input type="password" style="color: #444; text-align:center;" class="cyber-input" id="settings-password" placeholder="輸入密碼 (Access Key)">
-                
                 <div style="display:flex; gap:10px;">
                     <button class="action-btn" style="border:none" onclick="toggleLock(true)">LOCK (上鎖)</button>
                     <button class="action-btn" style="border:none" onclick="toggleLock(false)">UNLOCK (解鎖)</button>
                 </div>
             </div>
-
-            <!-- 時間與階段設定 -->
             <div class="module-card">
                 <div class="module-header"><span>⧫ PHASE SETTINGS</span><span>CALIBRATION ⟠</span></div>
-                
-                <p style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 15px;">
-                    設定每個階段的開始時間 (24h)<br>聖域將依照你的作息重塑。
-                </p>
-
-                <div class="settings-row">
-                    <span class="settings-label" style="color:var(--color-solar)">SOLAR (創造)</span>
-                    <select id="phase-solar-input" class="cyber-select"></select>
-                </div>
-
-                <div class="settings-row">
-                    <span class="settings-label" style="color:var(--color-dusk)">DUSK (社交)</span>
-                    <select id="phase-dusk-input" class="cyber-select"></select>
-                </div>
-
-                <div class="settings-row">
-                    <span class="settings-label" style="color:var(--color-sanctum)">SANCTUM (結界)</span>
-                    <select id="phase-sanctum-input" class="cyber-select"></select>
-                </div>
-
-                <div class="settings-row">
-                    <span class="settings-label" style="color:var(--color-void)">VOID (休眠)</span>
-                    <select id="phase-void-input" class="cyber-select"></select>
-                </div>
-                
-                <p style="font-size: 0.7rem; color: #666; text-align: center; margin-top: 5px;">
-                    SANCTUM 與 VOID 階段將啟動結界。
-                </p>
-
+                <p style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 15px;">設定每個階段的開始時間 (24h)<br>聖域將依照你的作息重塑。</p>
+                <div class="settings-row"><span class="settings-label" style="color:var(--color-solar)">SOLAR (創造)</span><select id="phase-solar-input" class="cyber-select"></select></div>
+                <div class="settings-row"><span class="settings-label" style="color:var(--color-dusk)">DUSK (社交)</span><select id="phase-dusk-input" class="cyber-select"></select></div>
+                <div class="settings-row"><span class="settings-label" style="color:var(--color-sanctum)">SANCTUM (結界)</span><select id="phase-sanctum-input" class="cyber-select"></select></div>
+                <div class="settings-row"><span class="settings-label" style="color:var(--color-void)">VOID (休眠)</span><select id="phase-void-input" class="cyber-select"></select></div>
+                <p style="font-size: 0.7rem; color: #666; text-align: center; margin-top: 5px;">SANCTUM 與 VOID 階段將啟動結界。</p>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button class="action-btn" style="border:none; color:#888; text-shadow: none;" onclick="resetPhaseSettings()">RESET</button>
                     <button class="action-btn" style="border:none;" onclick="savePhaseSettings()">SAVE</button>
                 </div>
             </div>
-            <!-- 資料管理區塊 (Data Management) -->
             <div class="module-card" style="margin-bottom: 80px;">
                 <div class="module-header"><span>⧫ DATA MANAGEMENT</span><span>CONTROL ⟠</span></div>
-                
-                <p style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 15px;">
-                    備份或還原聖域數據。<br>包含紀錄、密碼鑰匙與時間設定。
-                </p>
-
+                <p style="font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 15px;">備份或還原聖域數據。<br>包含紀錄、密碼鑰匙與時間設定。</p>
                 <div style="display:flex; flex-direction:column; gap:10px;">
-                    <!-- 匯出按鈕 -->
-                    <button class="action-btn" style="border:none; color:var(--active-color); font-family: var(--font-rune); font-weight:300; margin-top:0;" onclick="exportData()">
-                        [ EXPORT ARCHIVE (匯出備份) ]
-                    </button>
-
-                    <!-- 匯入按鈕 (觸發隱藏的 input) -->
-                    <button class="action-btn" style="border:none; color:var(--active-color); font-family: var(--font-rune); font-weight:300; margin-top:0;" onclick="document.getElementById('import-file-input').click()">
-                        [ IMPORT ARCHIVE (匯入備份) ]
-                    </button>
+                    <button class="action-btn" style="border:none; color:var(--active-color); font-family: var(--font-rune); font-weight:300;" onclick="exportData()">[ EXPORT ARCHIVE (匯出備份) ]</button>
+                    <button class="action-btn" style="border:none; color:var(--active-color); font-family: var(--font-rune); font-weight:300;" onclick="document.getElementById('import-file-input').click()">[ IMPORT ARCHIVE (匯入備份) ]</button>
                     <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importData(this)">
-
-                    <!-- 清除按鈕 -->
-                    <button class="action-btn btn-alert" style="border:none; margin-top: 10px;" onclick="wipeAllData()">
-                        [ WIPE SYSTEM (清除所有資料) ]
-                    </button>
+                    <button class="action-btn btn-alert" style="border:none; margin-top: 10px;" onclick="wipeAllData()">[ WIPE SYSTEM (清除所有資料) ]</button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- 底部導航 -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home')"><div class="nav-icon">⦿</div><span>聖域</span></div>
         <div class="nav-item" onclick="switchTab('focus')"><div class="nav-icon">⟡</div><span>水晶</span></div>
@@ -497,12 +363,16 @@
         <div class="nav-item" onclick="switchTab('settings')"><div class="nav-icon">⫸</div><span>設定</span></div>
     </div>
 
-    <!-- Task Modal -->
     <div class="modal" id="task-modal">
         <div class="modal-box">
             <h3 style="color:var(--active-color); font-family: var(--font-rune); font-weight:300; margin-top:0; text-shadow: 0 0 8px var(--active-color);">CRYSTAL CHARGING</h3>
             <p style="color:#888; font-family: var(--font-rune); font-size:0.8rem;">為了啟動這顆水晶，<br>你現在只需要做哪一件<b>小事</b>...再小都無妨。</p>
             <input type="text" class="cyber-input" id="micro-task-input" style="color:#666; font-family: var(--font-rune); font-size:0.8rem;" placeholder="例如: 打開檔案...">
+            <div class="duration-input-group">
+                <span>充能時間</span>
+                <input type="number" id="charge-minutes" min="1" max="120" value="25">
+                <span>min</span>
+            </div>
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="action-btn" style="color:#666; text-shadow: none;" onclick="closeTaskModal()">CANCEL</button>
                 <button class="action-btn" onclick="startTimer()">CONFIRM</button>
@@ -510,19 +380,18 @@
         </div>
     </div>
 
-    <!-- Crystal Detail Modal -->
     <div class="modal" id="crystal-detail-modal">
         <div class="modal-box">
-            <h3 style="color:var(--active-color); font-family: var(--font-rune); font-weight:300; margin-top:0;">CRYSTAL DATA</h3>
+            <h3 id="detail-modal-title" style="color:var(--active-color); font-family: var(--font-rune); font-weight:300; margin-top:0;">CRYSTAL DATA</h3>
             <div id="crystal-detail-content" style="color:#888; font-family: var(--font-rune); margin: 20px 0; font-size: 0.9rem;"></div>
             <div style="display:flex; gap:10px; justify-content: center;">
-                <button class="action-btn" style="color:#666; text-shadow: none;" onclick="document.getElementById('crystal-detail-modal').classList.remove('open')">CLOSE</button>
-                <button class="action-btn btn-alert" id="btn-delete-crystal">DELETE</button>
+                <button class="action-btn" style="color:#666; text-shadow: none;" id="btn-close-detail" onclick="document.getElementById('crystal-detail-modal').classList.remove('open')">CLOSE</button>
+                <button class="action-btn" style="color:var(--color-dusk); text-shadow: none; border-color: rgba(52,95,76,0.4);" id="btn-save-detail">SAVE</button>
+                <button class="action-btn btn-alert" id="btn-delete-detail">DELETE</button>
             </div>
         </div>
     </div>
 
-    <!-- Generic Alert Modal -->
     <div class="modal" id="generic-alert-modal">
         <div class="modal-box">
             <h3 id="alert-title" style="color:var(--active-color); font-family: var(--font-rune); font-weight:300; margin-top:0; text-shadow: 0 0 8px var(--active-color);">SYSTEM NOTICE</h3>
@@ -531,7 +400,6 @@
         </div>
     </div>
 
-    <!-- Generic Confirm Modal -->
     <div class="modal" id="generic-confirm-modal">
         <div class="modal-box">
             <h3 id="confirm-title" style="color:var(--color-alert); font-family: var(--font-rune); font-weight:300; margin-top:0; text-shadow: 0 0 8px var(--color-alert);">CONFIRMATION REQUIRED</h3>
@@ -547,17 +415,13 @@
 </div>
 
 <script>
-    // ===== 自定義 Alert 與 Confirm 邏輯 =====
-    
     function showCustomAlert(message, title = "SYSTEM NOTICE") {
         document.getElementById('alert-title').innerText = title;
         document.getElementById('alert-message').innerText = message;
         document.getElementById('generic-alert-modal').classList.add('open');
     }
 
-    // 用於存儲確認視窗的當前 Callback
     let confirmCallback = null;
-
     function showCustomConfirm(message, onConfirm, title = "CONFIRMATION REQUIRED") {
         document.getElementById('confirm-title').innerText = title;
         document.getElementById('confirm-message').innerText = message;
@@ -565,629 +429,370 @@
         document.getElementById('generic-confirm-modal').classList.add('open');
     }
 
-    // 綁定確認按鈕事件 (只需執行一次)
     document.getElementById('confirm-yes-btn').addEventListener('click', function() {
-        if (confirmCallback) {
-            confirmCallback();
-        }
+        if (confirmCallback) confirmCallback();
         document.getElementById('generic-confirm-modal').classList.remove('open');
-        confirmCallback = null; // 重置
+        confirmCallback = null;
     });
 
+    let currentPassword = localStorage.getItem('app_password') || "";
+    let isUnlocked = localStorage.getItem('is_unlocked') === 'true';
 
-    // ===== 修正後的加密系統 =====
-    let currentPassword = localStorage.getItem('app_password') || ""; // 持久化密碼
-    let isUnlocked = localStorage.getItem('is_unlocked') === 'true'; // 持久化解鎖狀態
-
-    // 關鍵修正: 加密函數 - 總是使用密碼加密(如果有密碼)
     function encryptData(text) {
-        if (!text) return "";
-        if (!currentPassword) return text; // 無密碼時明文存儲
-        
-        try {
-            return CryptoJS.AES.encrypt(text, currentPassword).toString();
-        } catch (e) { 
-            console.error('Encryption error:', e);
-            return text; 
-        }
+        if (!text || !currentPassword) return text || "";
+        try { return CryptoJS.AES.encrypt(text, currentPassword).toString(); }
+        catch (e) { return text; }
     }
 
-    // 關鍵修正: 解密函數
     function decryptData(ciphertext) {
         if (!ciphertext) return "";
-        if (!currentPassword) return ciphertext; // 無密碼直接返回
-        if (!isUnlocked) return "⧫𝓔𝓣⟠𝓟𝓨⧫𝓡𝓒⟠𝓝𝓔⧫"; // 上鎖狀態顯示加密標記
-        
+        if (!currentPassword) return ciphertext;
+        if (!isUnlocked) return "⧫𝓔𝓣⟠𝓟𝓨⧫𝓡𝓒⟠𝓝𝓔⧫";
         try {
             const bytes = CryptoJS.AES.decrypt(ciphertext, currentPassword);
-            const originalText = bytes.toString(CryptoJS.enc.Utf8);
-            return originalText || "DECRYPTION FAILED";
-        } catch (e) {
-            console.error('Decryption error:', e);
-            return "DECRYPTION FAILED";
-        }
+            return bytes.toString(CryptoJS.enc.Utf8) || "DECRYPTION FAILED";
+        } catch (e) { return "DECRYPTION FAILED"; }
     }
 
-// 4. 檢測文本是否已加密
-function isEncrypted(text) {
-    if (!text) return false;
-    // AES加密後的文本通常以 "U2FsdGVk" 開頭 (Base64編碼的特徵)
-    return text.startsWith('U2FsdGVk');
-}
-
-// 5. 重新加密所有舊資料
-function reEncryptAllData(oldPassword, newPassword) {
-    // 重新加密 Alchemy Logs
-    if (State.alchemyLogs.length > 0) {
+    function reEncryptAllData(oldPassword, newPassword) {
         State.alchemyLogs = State.alchemyLogs.map(log => {
-            let rawText = log.raw;
-            let refinedText = log.refined;
-            
-            // 如果有舊密碼,先解密
+            let rawText = log.raw, refinedText = log.refined;
             if (oldPassword) {
                 try {
-                    const rawBytes = CryptoJS.AES.decrypt(rawText, oldPassword);
-                    rawText = rawBytes.toString(CryptoJS.enc.Utf8) || rawText;
-                    
-                    const refinedBytes = CryptoJS.AES.decrypt(refinedText, oldPassword);
-                    refinedText = refinedBytes.toString(CryptoJS.enc.Utf8) || refinedText;
-                } catch (e) {
-                    console.error('解密舊資料失敗:', e);
-                }
+                    rawText = CryptoJS.AES.decrypt(rawText, oldPassword).toString(CryptoJS.enc.Utf8) || rawText;
+                    refinedText = CryptoJS.AES.decrypt(refinedText, oldPassword).toString(CryptoJS.enc.Utf8) || refinedText;
+                } catch (e) {}
             }
-            
-            // 用新密碼重新加密
-            return {
-                ...log,
+            return { ...log,
                 raw: newPassword ? CryptoJS.AES.encrypt(rawText, newPassword).toString() : rawText,
                 refined: newPassword ? CryptoJS.AES.encrypt(refinedText, newPassword).toString() : refinedText
             };
         });
-    }
-    
-    // 重新加密 Crystal Logs
-    if (State.crystalLogs.length > 0) {
         State.crystalLogs = State.crystalLogs.map(log => {
             let taskText = log.task;
-            
-            // 如果有舊密碼,先解密
             if (oldPassword) {
-                try {
-                    const taskBytes = CryptoJS.AES.decrypt(taskText, oldPassword);
-                    taskText = taskBytes.toString(CryptoJS.enc.Utf8) || taskText;
-                } catch (e) {
-                    console.error('解密舊資料失敗:', e);
-                }
+                try { taskText = CryptoJS.AES.decrypt(taskText, oldPassword).toString(CryptoJS.enc.Utf8) || taskText; }
+                catch (e) {}
             }
-            
-            // 用新密碼重新加密
-            return {
-                ...log,
-                task: newPassword ? CryptoJS.AES.encrypt(taskText, newPassword).toString() : taskText
-            };
+            return { ...log, task: newPassword ? CryptoJS.AES.encrypt(taskText, newPassword).toString() : taskText };
         });
+        saveData();
     }
-    
-    saveData(); // 保存重新加密後的資料
-}
 
-// 6. 完全修正的 toggleLock 函數 (已改用 Custom Alert)
-function toggleLock(lockState) {
-    const inputPass = document.getElementById('settings-password').value;
-    const statusEl = document.getElementById('lock-status');
-    
-    if (lockState) {
-        // === 上鎖 ===
-        if (!inputPass) { 
-            showCustomAlert("「輸入密碼，以上鎖聖域。」", "KEY REQUIRED");
-            return; 
+    function toggleLock(lockState) {
+        const inputPass = document.getElementById('settings-password').value;
+        const statusEl = document.getElementById('lock-status');
+        if (lockState) {
+            if (!inputPass) { showCustomAlert("「輸入密碼，以上鎖聖域。」", "KEY REQUIRED"); return; }
+            const oldPassword = currentPassword;
+            currentPassword = inputPass;
+            isUnlocked = false;
+            localStorage.setItem('app_password', currentPassword);
+            localStorage.setItem('is_unlocked', 'false');
+            reEncryptAllData(oldPassword, currentPassword);
+            statusEl.innerText = "LOCKED (加密中)";
+            statusEl.className = "status-badge locked";
+            showCustomAlert("「聖域已上鎖，資料已加密。」", "LOCKED");
+        } else {
+            if (!inputPass) { showCustomAlert("「輸入密碼，以解鎖聖域。」", "KEY REQUIRED"); return; }
+            if (!currentPassword) { showCustomAlert("「聖域尚未設定密碼，無需解鎖。」", "NOTICE"); return; }
+            if (inputPass !== currentPassword) { showCustomAlert("「密碼錯誤。」", "ACCESS DENIED"); return; }
+            isUnlocked = true;
+            localStorage.setItem('is_unlocked', 'true');
+            statusEl.innerText = "UNLOCKED (已解密)";
+            statusEl.className = "status-badge unlocked";
+            showCustomAlert("「聖域已解鎖，資料已解密。」", "UNLOCKED");
         }
-        
-        const oldPassword = currentPassword;
-        currentPassword = inputPass;
-        isUnlocked = false;
-        
-        // 保存新密碼
-        localStorage.setItem('app_password', currentPassword);
-        localStorage.setItem('is_unlocked', 'false');
-        
-        // 重新加密所有資料
-        reEncryptAllData(oldPassword, currentPassword);
-        
-        statusEl.innerText = "LOCKED (加密中)";
-        statusEl.className = "status-badge locked";
-        
-        showCustomAlert("「聖域已上鎖，資料已加密。」", "LOCKED");
-        
-    } else {
-        // === 解鎖 ===
-        if (!inputPass) { 
-            showCustomAlert("「輸入密碼，以解鎖聖域。」", "KEY REQUIRED");
-            return; 
-        }
-        
-        if (!currentPassword) {
-            showCustomAlert("「聖域尚未設定密碼，無需解鎖。」", "NOTICE");
-            return;
-        }
-        
-        // 驗證密碼
-        if (inputPass !== currentPassword) {
-            showCustomAlert("「密碼錯誤。」", "ACCESS DENIED");
-            return;
-        }
-        
-        isUnlocked = true;
-        localStorage.setItem('is_unlocked', 'true');
-        
-        statusEl.innerText = "UNLOCKED (已解密)";
-        statusEl.className = "status-badge unlocked";
-        
-        showCustomAlert("「聖域已解鎖，資料已解密。」", "UNLOCKED");
+        document.getElementById('settings-password').value = "";
+        renderCrystalLogs(); renderAlchemyLogs();
     }
-    
-    // 清空密碼輸入框
-    document.getElementById('settings-password').value = "";
-    
-    // 刷新所有列表顯示
-    renderCrystalLogs();
-    renderAlchemyLogs();
-}
 
-// 7. 頁面載入時更新UI狀態
-window.addEventListener('load', function() {
-    const statusEl = document.getElementById('lock-status');
-    if (currentPassword && !isUnlocked) {
-        statusEl.innerText = "LOCKED (加密中)";
-        statusEl.className = "status-badge locked";
-    } else if (currentPassword && isUnlocked) {
-        statusEl.innerText = "UNLOCKED (已解密)";
-        statusEl.className = "status-badge unlocked";
-    } else {
-        statusEl.innerText = "NO PASSWORD (無加密)";
-        statusEl.className = "status-badge";
-    }
-})
-
-// --- Core State ---
     const State = {
         stardust: parseInt(localStorage.getItem('stardust')) || 0,
         crystals: parseInt(localStorage.getItem('crystals')) || 0,
         mana: parseInt(localStorage.getItem('mana')) || 100,
         alchemyLogs: JSON.parse(localStorage.getItem('alchemy_logs')) || [],
         crystalLogs: JSON.parse(localStorage.getItem('crystal_logs')) || [],
-        phaseSettings: JSON.parse(localStorage.getItem('phase_settings')) || {
-            solar: 9,
-            dusk: 18,
-            sanctum: 23,
-            void: 2
-        },
+        phaseSettings: JSON.parse(localStorage.getItem('phase_settings')) || { solar: 9, dusk: 18, sanctum: 23, void: 2 },
         timer: null,
         timeLeft: 1500,
-        sessionDuration: 1500, // 用於記錄本次任務的實際總長度
+        startTimestamp: null,
         phase: null,
         currentTask: ""
     };
 
     window.onload = () => {
-        updateClock();
-        setInterval(updateClock, 1000);
-        updateUI();
-        renderAlchemyLogs();
-        renderCrystalLogs();
-        
-        // 初始化設定頁面的選單
-        initPhaseSettingsUI();
+        const statusEl = document.getElementById('lock-status');
+        if (currentPassword && !isUnlocked) { statusEl.innerText = "LOCKED (加密中)"; statusEl.className = "status-badge locked"; }
+        else if (currentPassword && isUnlocked) { statusEl.innerText = "UNLOCKED (已解密)"; statusEl.className = "status-badge unlocked"; }
+        else { statusEl.innerText = "NO PASSWORD (無加密)"; statusEl.className = "status-badge"; }
+        updateClock(); setInterval(updateClock, 1000);
+        updateUI(); renderAlchemyLogs(); renderCrystalLogs(); initPhaseSettingsUI();
     };
 
-    // --- Phase Settings Logic ---
-    
     function initPhaseSettingsUI() {
-        // 生成 0-23 的選項
-        const generateOptions = (selectedVal) => {
-            let html = '';
-            for(let i=0; i<24; i++) {
-                const val = i;
-                const label = String(i).padStart(2,'0') + ":00";
-                html += `<option value="${val}" ${val == selectedVal ? 'selected' : ''}>${label}</option>`;
-            }
-            return html;
-        };
-
-        document.getElementById('phase-solar-input').innerHTML = generateOptions(State.phaseSettings.solar);
-        document.getElementById('phase-dusk-input').innerHTML = generateOptions(State.phaseSettings.dusk);
-        document.getElementById('phase-sanctum-input').innerHTML = generateOptions(State.phaseSettings.sanctum);
-        document.getElementById('phase-void-input').innerHTML = generateOptions(State.phaseSettings.void);
+        const gen = (sel) => { let h = ''; for (let i = 0; i < 24; i++) h += `<option value="${i}" ${i == sel ? 'selected' : ''}>${String(i).padStart(2,'0')}:00</option>`; return h; };
+        document.getElementById('phase-solar-input').innerHTML = gen(State.phaseSettings.solar);
+        document.getElementById('phase-dusk-input').innerHTML = gen(State.phaseSettings.dusk);
+        document.getElementById('phase-sanctum-input').innerHTML = gen(State.phaseSettings.sanctum);
+        document.getElementById('phase-void-input').innerHTML = gen(State.phaseSettings.void);
     }
 
     function savePhaseSettings() {
-        const newSettings = {
-            solar: parseInt(document.getElementById('phase-solar-input').value),
-            dusk: parseInt(document.getElementById('phase-dusk-input').value),
-            sanctum: parseInt(document.getElementById('phase-sanctum-input').value),
-            void: parseInt(document.getElementById('phase-void-input').value)
-        };
-        
-        State.phaseSettings = newSettings;
-        localStorage.setItem('phase_settings', JSON.stringify(newSettings));
-        
-        // 立即更新狀態
-        State.phase = null; // 強制刷新
-        updateClock();
+        State.phaseSettings = { solar: parseInt(document.getElementById('phase-solar-input').value), dusk: parseInt(document.getElementById('phase-dusk-input').value), sanctum: parseInt(document.getElementById('phase-sanctum-input').value), void: parseInt(document.getElementById('phase-void-input').value) };
+        localStorage.setItem('phase_settings', JSON.stringify(State.phaseSettings));
+        State.phase = null; updateClock();
         showCustomAlert("「聖域已為你重塑。」", "SETTINGS COMPLETE");
     }
 
     function resetPhaseSettings() {
-        const defaultSettings = { solar: 9, dusk: 18, sanctum: 23, void: 2 };
-        State.phaseSettings = defaultSettings;
-        localStorage.setItem('phase_settings', JSON.stringify(defaultSettings));
-        initPhaseSettingsUI();
-        State.phase = null;
-        updateClock();
+        State.phaseSettings = { solar: 9, dusk: 18, sanctum: 23, void: 2 };
+        localStorage.setItem('phase_settings', JSON.stringify(State.phaseSettings));
+        initPhaseSettingsUI(); State.phase = null; updateClock();
         showCustomAlert("「聖域已重塑為初始值。」", "RESET COMPLETE");
     }
 
-    // Navigation
     function switchTab(tabName) {
         document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
         document.getElementById(`page-${tabName}`).classList.add('active');
-        const icons = { 'home': 0, 'focus': 1, 'alchemy': 2, 'release': 3, 'settings': 4 };
-        document.querySelectorAll('.nav-item').forEach((el, index) => {
-            if(index === icons[tabName]) el.classList.add('active');
-            else el.classList.remove('active');
-        });
+        const icons = { home: 0, focus: 1, alchemy: 2, release: 3, settings: 4 };
+        document.querySelectorAll('.nav-item').forEach((el, i) => el.classList.toggle('active', i === icons[tabName]));
     }
 
-    // Time & Phase (Updated Logic)
     function updateClock() {
-        const now = new Date();
-        const h = now.getHours();
-        const m = now.getMinutes();
-        const timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-        const timeDisplay = document.getElementById('real-time');
-        if(timeDisplay) timeDisplay.innerText = timeStr;
-
-        // 處理跨午夜情況
-        const isInRange = (curr, start, next) => {
-            if (start < next) {
-                return curr >= start && curr < next;
-            } else {
-                return curr >= start || curr < next;
-            }
-        };
-
+        const now = new Date(), h = now.getHours(), m = now.getMinutes();
+        const td = document.getElementById('real-time');
+        if (td) td.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+        const inR = (c, s, n) => s < n ? (c >= s && c < n) : (c >= s || c < n);
         const ps = State.phaseSettings;
         let phase = 'void';
-
-        // 依序檢查每個階段 (Solar -> Dusk -> Sanctum -> Void)
-        if (isInRange(h, ps.solar, ps.dusk)) {
-            phase = 'solar';
-        } else if (isInRange(h, ps.dusk, ps.sanctum)) {
-            phase = 'dusk';
-        } else if (isInRange(h, ps.sanctum, ps.void)) {
-            phase = 'sanctum';
-        } else {
-            phase = 'void';
-        }
-        
-        // 處理社交鎖
-        const socialModule = document.getElementById('module-social');
-        if (phase === 'sanctum' || phase === 'void') {
-            socialModule.classList.add('locked');
-        } else {
-            socialModule.classList.remove('locked');
-        }
-
-        if (State.phase !== phase) {
-            State.phase = phase;
-            updateTheme(phase);
-        }
-
-        // 日晷
-        const totalMin = h * 60 + m;
-        let percent = 0;
-        // 假設白天是 6:00 - 18:00 (日晷顯示用)
-        if (h >= 6 && h < 18) percent = (totalMin - 360) / 720;
-        else percent = (h >= 18) ? 1 : 0;
-        
-        const angle = Math.PI * (1 - percent);
-        const x = 110 + 100 * Math.cos(angle);
-        const y = 110 - 100 * Math.sin(angle);
-        const celestial = document.getElementById('celestial-body');
-        if(celestial) { celestial.setAttribute('cx', x); celestial.setAttribute('cy', y); }
+        if (inR(h, ps.solar, ps.dusk)) phase = 'solar';
+        else if (inR(h, ps.dusk, ps.sanctum)) phase = 'dusk';
+        else if (inR(h, ps.sanctum, ps.void)) phase = 'sanctum';
+        const sm = document.getElementById('module-social');
+        if (phase === 'sanctum' || phase === 'void') sm.classList.add('locked'); else sm.classList.remove('locked');
+        if (State.phase !== phase) { State.phase = phase; updateTheme(phase); }
+        const tot = h * 60 + m;
+        let pct = 0;
+        if (h >= 6 && h < 18) pct = (tot - 360) / 720; else pct = h >= 18 ? 1 : 0;
+        const ang = Math.PI * (1 - pct), cb = document.getElementById('celestial-body');
+        if (cb) { cb.setAttribute('cx', 110 + 100 * Math.cos(ang)); cb.setAttribute('cy', 110 - 100 * Math.sin(ang)); }
     }
 
     function updateTheme(phase) {
-        const root = document.documentElement;
         let color, name, glow;
-        switch(phase) {
+        switch (phase) {
             case 'solar': color = '#c29d7c'; name = 'SOLAR (創造)'; glow = '8px'; break;
             case 'dusk': color = '#345f4c'; name = 'DUSK (社交)'; glow = '12px'; break;
             case 'sanctum': color = '#6a708a'; name = 'SANCTUM (結界)'; glow = '5px'; break;
             default: color = '#4b4a69'; name = 'VOID (休眠)'; glow = '2px'; break;
         }
-        root.style.setProperty('--active-color', color);
-        root.style.setProperty('--glow-spread', glow);
-        const phaseName = document.getElementById('phase-name');
-        if(phaseName) phaseName.innerText = name;
+        document.documentElement.style.setProperty('--active-color', color);
+        document.documentElement.style.setProperty('--glow-spread', glow);
+        const pn = document.getElementById('phase-name');
+        if (pn) pn.innerText = name;
     }
 
-    function adjustMana(val) {
-        State.mana = Math.min(100, Math.max(0, State.mana + val));
-        localStorage.setItem('mana', State.mana);
-        updateUI();
-    }
+    function adjustMana(val) { State.mana = Math.min(100, Math.max(0, State.mana + val)); localStorage.setItem('mana', State.mana); updateUI(); }
 
-    // --- Pomodoro Logic ---
     function openTaskModal() { document.getElementById('task-modal').classList.add('open'); document.getElementById('micro-task-input').focus(); }
     function closeTaskModal() { document.getElementById('task-modal').classList.remove('open'); }
-    
+
     function startTimer() {
         const input = document.getElementById('micro-task-input');
+        const minInput = document.getElementById('charge-minutes');
+        const minutes = Math.max(1, Math.min(120, parseInt(minInput.value) || 25));
+        minInput.value = minutes;
         State.currentTask = input.value || "Unknown Task";
-        
-        // 輸入後立刻變亂碼特效 (視覺效果)
-        if (isUnlocked && currentPassword) {
-            input.value = encryptData(State.currentTask);
-        }
+        State.startTimestamp = Date.now();
+
+        if (isUnlocked && currentPassword) input.value = encryptData(State.currentTask);
 
         setTimeout(() => {
-            closeTaskModal();
-            input.value = ""; // 清空輸入框
+            closeTaskModal(); input.value = "";
             if (State.timer) clearInterval(State.timer);
-            
-            // [修改] 設定初始時間與紀錄用的總時長
-            State.timeLeft = 25 * 60;
-            State.sessionDuration = 25 * 60; 
-
-            document.getElementById('btn-start').innerText = "CHARGING...";
-            document.getElementById('btn-start').style.borderColor = "var(--color-alert)";
-            document.getElementById('btn-start').style.color= "var(--color-alert)";
-            document.getElementById('btn-start').style.textShadow= "var(--color-alert)";
-            document.getElementById('btn-early-end').style.display = "block"; // 顯示提早結束按鈕
-            
+            State.timeLeft = minutes * 60;
+            const bs = document.getElementById('btn-start');
+            bs.innerText = "CHARGING..."; bs.style.borderColor = "var(--color-alert)"; bs.style.color = "var(--color-alert)"; bs.style.textShadow = "var(--color-alert)";
+            document.getElementById('btn-early-end').style.display = "block";
             State.timer = setInterval(() => {
                 State.timeLeft--;
-                const m = Math.floor(State.timeLeft / 60).toString().padStart(2,'0');
-                const s = (State.timeLeft % 60).toString().padStart(2,'0');
-                document.getElementById('timer').innerText = `${m}:${s}`;
-                
-                if (State.timeLeft <= 0) {
-                    completeCycle();
-                }
+                document.getElementById('timer').innerText = `${Math.floor(State.timeLeft / 60).toString().padStart(2,'0')}:${(State.timeLeft % 60).toString().padStart(2,'0')}`;
+                if (State.timeLeft <= 0) completeCycle();
             }, 1000);
         }, 500);
     }
-    
-    function reduceDifficulty() { 
-        if (!State.timer) return; // 只有計時中才能減半
-        // 只減少剩餘時間；sessionDuration 保持原始值，completeCycle 會自動計算實際已用時間
-        State.timeLeft = Math.floor(State.timeLeft / 2); 
-    }
+
+    function reduceDifficulty() { if (!State.timer) return; State.timeLeft = Math.floor(State.timeLeft / 2); }
 
     function earlyEndTimer() {
-        if (!State.timer) return; // 若計時器未啟動則略過
-        showCustomConfirm("「確定要提早結束本次充能嗎？」", () => {
-            // timeLeft 設為 sessionDuration，讓 completeCycle 計算出 actualDuration = 0 會有問題
-            // 正確做法：直接呼叫 completeCycle，此時 timeLeft 仍保有剩餘秒數
-            // completeCycle 已改為: actualDuration = sessionDuration - timeLeft
-            completeCycle();
-        }, "EARLY END SESSION");
+        if (!State.timer) return;
+        showCustomConfirm("「確定要提早結束本次充能嗎？」", () => { completeCycle(); }, "EARLY END SESSION");
     }
 
     function completeCycle() {
-        clearInterval(State.timer);
-        State.crystals++;
-        State.stardust += 50;
-
-        // --- 新增功能：播放音效 ---
+        clearInterval(State.timer); State.timer = null;
+        State.crystals++; State.stardust += 50;
         const audio = document.getElementById('timer-sound');
-        if (audio) {
-            // 重置播放時間，確保每次都能從頭播放
-            audio.currentTime = 0;
-            // 嘗試播放，並捕捉錯誤 (防止瀏覽器阻擋自動播放報錯)
-            audio.play().catch(e => console.log("Audio play prevented:", e));
-        }
+        if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
 
-        // 計算實際已使用的時長 (總時長 - 剩餘時間)
-        const actualDuration = State.sessionDuration - State.timeLeft;
-        const durM = Math.floor(actualDuration / 60).toString().padStart(2,'0');
-        const durS = (actualDuration % 60).toString().padStart(2,'0');
-        const durationStr = `${durM}:${durS}`;
+        const elapsed = Math.round((Date.now() - State.startTimestamp) / 1000);
+        const dm = Math.floor(elapsed / 60).toString().padStart(2,'0');
+        const ds = (elapsed % 60).toString().padStart(2,'0');
 
-        // 儲存水晶紀錄
-        const now = new Date();
-        const log = {
+        const sd = new Date(State.startTimestamp);
+        State.crystalLogs.push({
             id: Date.now(),
-            task: encryptData(State.currentTask), // 加密存儲
-            dateStr: `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
-            duration: durationStr // [修改] 使用動態計算的時間
-        };
-        State.crystalLogs.push(log);
-        
-        saveData(); 
-        updateUI(); 
-        renderCrystalLogs();
-        
+            task: encryptData(State.currentTask),
+            dateStr: `${sd.getMonth()+1}/${sd.getDate()} ${String(sd.getHours()).padStart(2,'0')}:${String(sd.getMinutes()).padStart(2,'0')}`,
+            duration: `${dm}:${ds}`
+        });
+
+        saveData(); updateUI(); renderCrystalLogs();
         showCustomAlert("「已成功充能一顆水晶。」Stardust +50", "CRYSTAL CHARGED");
-        
-        document.getElementById('btn-start').innerText = "CRYSTAL CHARGING (水晶充能)";
-        document.getElementById('btn-start').style.borderColor = "var(--active-color)";
-        document.getElementById('btn-start').style.color= "var(--active-color)";
-        document.getElementById('btn-start').style.textShadow= "var(--active-color)";
-        document.getElementById('btn-early-end').style.display = "none"; // 隱藏提早結束按鈕
-        document.getElementById('timer').innerText = "25:00"; // 重置計時器顯示
-        document.getElementById('micro-task-input').value = ""; // 清空輸入
+
+        const bs = document.getElementById('btn-start');
+        bs.innerText = "CRYSTAL CHARGING (水晶充能)"; bs.style.borderColor = "var(--active-color)"; bs.style.color = "var(--active-color)"; bs.style.textShadow = "var(--active-color)";
+        document.getElementById('btn-early-end').style.display = "none";
+        const defMin = document.getElementById('charge-minutes').value || 25;
+        document.getElementById('timer').innerText = `${String(defMin).padStart(2,'0')}:00`;
+        document.getElementById('micro-task-input').value = "";
     }
 
-    function resetCrystalSlots() {
-        State.crystals = 0; // 重置槽位計數，不影響日誌
-        saveData();
-        updateUI();
-    }
+    function resetCrystalSlots() { State.crystals = 0; saveData(); updateUI(); }
 
-    // --- Crystal Archive Logic ---
     function renderCrystalLogs() {
-        const container = document.getElementById('crystal-archive');
-        container.innerHTML = "";
-        State.crystalLogs.forEach((log, index) => {
-            const crystal = document.createElement('div');
-            crystal.className = 'archived-crystal';
-            // 根據是否解鎖決定顯示內容 (雖然水晶只是圖標，但點開後的內容需要解密)
-            crystal.onclick = () => showCrystalDetail(log, index);
-            container.appendChild(crystal);
+        const c = document.getElementById('crystal-archive'); c.innerHTML = "";
+        State.crystalLogs.forEach((log, i) => {
+            const d = document.createElement('div'); d.className = 'archived-crystal';
+            d.onclick = () => showCrystalDetail(log, i); c.appendChild(d);
         });
     }
 
     function showCrystalDetail(log, index) {
         const modal = document.getElementById('crystal-detail-modal');
         const content = document.getElementById('crystal-detail-content');
-        const deleteBtn = document.getElementById('btn-delete-crystal');
-
-        // 解密任務
+        document.getElementById('detail-modal-title').innerText = "CRYSTAL DATA";
         const taskText = decryptData(log.task);
+        const canEdit = !currentPassword || isUnlocked;
+        const dis = canEdit ? '' : 'disabled';
 
         content.innerHTML = `
-            <p>ID: #${index + 1}</p>
-            <p>TIME: ${log.dateStr}</p>
-            <p>DURATION: ${log.duration}</p>
+            <p style="margin:6px 0;">ID: <input class="edit-field" id="ed-c-id" value="#${index + 1}" ${dis} style="width:60px; color:#888;"></p>
+            <p style="margin:6px 0;">TIME: <input class="edit-field" id="ed-c-time" value="${log.dateStr}" ${dis} style="width:140px; color:#888;"></p>
+            <p style="margin:6px 0;">DURATION: <input class="edit-field" id="ed-c-dur" value="${log.duration}" ${dis} style="width:80px; color:#888;"></p>
             <hr style="border-color:#333; margin: 10px 0;">
-            <p style="color:var(--active-color); font-weight:bold;">TASK:<br>${taskText}</p>
-        `;
+            <p style="color:var(--active-color); font-weight:bold; margin:6px 0;">TASK:<br><input class="edit-field" id="ed-c-task" value="${canEdit ? taskText : '⧫𝓔𝓣⟠𝓟𝓨⧫𝓡𝓒⟠𝓝𝓔⧫'}" ${dis} style="color:var(--active-color); font-weight:bold; margin-top:4px;"></p>`;
 
-        // 這裡需要修改為使用 custom confirm
-        deleteBtn.onclick = () => {
-            showCustomConfirm("「確定要移除此顆水晶嗎？」", () => {
-                State.crystalLogs.splice(index, 1);
-                saveData();
-                renderCrystalLogs();
-                modal.classList.remove('open');
-            }, "DELETE CRYSTAL");
+        const btnSave = document.getElementById('btn-save-detail');
+        btnSave.style.display = canEdit ? '' : 'none';
+        btnSave.onclick = () => {
+            log.task = encryptData(document.getElementById('ed-c-task').value);
+            log.dateStr = document.getElementById('ed-c-time').value;
+            log.duration = document.getElementById('ed-c-dur').value;
+            saveData(); renderCrystalLogs(); modal.classList.remove('open');
+            showCustomAlert("「水晶紀錄已更新。」", "SAVED");
         };
 
+        document.getElementById('btn-delete-detail').onclick = () => {
+            showCustomConfirm("「確定要移除此顆水晶嗎？」", () => {
+                State.crystalLogs.splice(index, 1); saveData(); renderCrystalLogs(); modal.classList.remove('open');
+            }, "DELETE CRYSTAL");
+        };
         modal.classList.add('open');
     }
 
     function clearCrystalLogs() {
-        showCustomConfirm("「確定要清空所有水晶收藏嗎？」", () => {
-            State.crystalLogs = [];
-            saveData();
-            renderCrystalLogs();
-        }, "RESET COLLECTION");
+        showCustomConfirm("「確定要清空所有水晶收藏嗎？」", () => { State.crystalLogs = []; saveData(); renderCrystalLogs(); }, "RESET COLLECTION");
     }
 
-    // --- Alchemy Logic ---
     function transmute() {
-        const rawInput = document.getElementById('alchemy-raw');
-        const refinedInput = document.getElementById('alchemy-refined');
-        
-        const rawVal = rawInput.value;
-        const refinedVal = refinedInput.value;
-
-        if (!rawVal || !refinedVal) return;
-
-        // 視覺上的加密 (輸入框變成亂碼)
-        if (isUnlocked && currentPassword) {
-            rawInput.value = encryptData(rawVal);
-            refinedInput.value = encryptData(refinedVal);
-        }
-
+        const ri = document.getElementById('alchemy-raw'), fi = document.getElementById('alchemy-refined');
+        const rv = ri.value, fv = fi.value;
+        if (!rv || !fv) return;
+        if (isUnlocked && currentPassword) { ri.value = encryptData(rv); fi.value = encryptData(fv); }
         setTimeout(() => {
             const now = new Date();
-            const entry = {
-                id: Date.now(),
-                raw: encryptData(rawVal), // 加密存儲
-                refined: encryptData(refinedVal), // 加密存儲
+            State.alchemyLogs.unshift({ id: Date.now(), raw: encryptData(rv), refined: encryptData(fv),
                 dateStr: `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`,
-                timeStr: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
-            };
-            State.alchemyLogs.unshift(entry);
-            State.stardust += 20;
-            
-            saveData(); 
-            rawInput.value = ''; 
-            refinedInput.value = '';
-            renderAlchemyLogs(); 
-            updateUI();
+                timeStr: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}` });
+            State.stardust += 20; saveData(); ri.value = ''; fi.value = ''; renderAlchemyLogs(); updateUI();
         }, 500);
     }
 
     function renderAlchemyLogs() {
         const shelf = document.getElementById('archive-shelf');
-        if (State.alchemyLogs.length === 0) { shelf.innerHTML = '<div style="text-align:center;color:#333;padding:20px;">[ NO DATA ARCHIVED ]</div>'; return; }
-        
-        shelf.innerHTML = State.alchemyLogs.map((log, index) => {
-            // 解密顯示
-            const rawText = decryptData(log.raw);
-            const refinedText = decryptData(log.refined);
-
-            return `
-            <div class="archive-item" onclick="this.classList.toggle('expanded')">
-                <div class="delete-btn-small" onclick="deleteAlchemyLog(event, ${index})">×</div>
+        if (!State.alchemyLogs.length) { shelf.innerHTML = '<div style="text-align:center;color:#333;padding:20px;">[ NO DATA ARCHIVED ]</div>'; return; }
+        shelf.innerHTML = State.alchemyLogs.map((log, i) => {
+            const raw = decryptData(log.raw), ref = decryptData(log.refined);
+            return `<div class="archive-item" onclick="this.classList.toggle('expanded')">
+                <div class="delete-btn-small" onclick="deleteAlchemyLog(event,${i})">×</div>
                 <div style="font-size:0.7rem; color:#555; font-family:var(--font-rune); margin-bottom:4px;">${log.dateStr} <span style="float:right">${log.timeStr}</span></div>
-                <div style="font-size:0.9rem; color:var(--color-solar); text-align:center; font-family:var(--font-rune); text-shadow: 0 0 8px var(--color-solar);">Result: ${refinedText}</div>
-                <div style="text-align:center;" class="archive-details">
-                    <span style="color:var(--color-void); font-size:0.7rem; font-family:var(--font-rune);">[ Material: ${rawText} ]</span>
+                <div style="font-size:0.9rem; color:var(--color-solar); text-align:center; font-family:var(--font-rune); text-shadow: 0 0 8px var(--color-solar);">Result: ${ref}</div>
+                <div style="text-align:center;" class="archive-details"><span style="color:var(--color-void); font-size:0.7rem; font-family:var(--font-rune);">[ Material: ${raw} ]</span></div>
+                <div style="color:var(--color-text-dim); text-align:center; font-size:0.7rem; font-family:var(--font-rune); margin-top:6px;">
+                    <span style="text-decoration:underline; cursor:pointer;" onclick="event.stopPropagation(); openAlchemyEdit(${i})">[ EDIT ]</span>
                 </div>
-                <div style="color:var(--color-text-dim); text-align:center; font-size:0.7rem; font-family:var(--font-rune);">[ ALCHEMY RESULT: SUCCESSFUL & IMMACULATE ]</div>
-            </div>
-        `}).join('');
+            </div>`;
+        }).join('');
     }
 
-    function deleteAlchemyLog(e, index) {
-        e.stopPropagation(); // 防止觸發展開
-        showCustomConfirm("「確定要刪除此則煉金紀錄嗎？」", () => {
-            State.alchemyLogs.splice(index, 1);
-            saveData();
-            renderAlchemyLogs();
-        }, "DELETE DATA");
+    function openAlchemyEdit(index) {
+        const log = State.alchemyLogs[index]; if (!log) return;
+        const canEdit = !currentPassword || isUnlocked;
+        if (!canEdit) { showCustomAlert("「請先解鎖聖域以編輯紀錄。」", "LOCKED"); return; }
+        const modal = document.getElementById('crystal-detail-modal');
+        const content = document.getElementById('crystal-detail-content');
+        document.getElementById('detail-modal-title').innerText = "ALCHEMY DATA";
+        const rawText = decryptData(log.raw), refText = decryptData(log.refined);
+
+        content.innerHTML = `
+            <p style="margin:6px 0; color:var(--color-solar);">RESULT:<br><input class="edit-field" id="ed-a-ref" value="${refText}" style="color:var(--color-solar); font-weight:bold; margin-top:4px;"></p>
+            <hr style="border-color:#333; margin: 10px 0;">
+            <p style="margin:6px 0; color:var(--color-void);">MATERIAL:<br><input class="edit-field" id="ed-a-raw" value="${rawText}" style="color:var(--color-void); margin-top:4px;"></p>`;
+
+        const btnSave = document.getElementById('btn-save-detail');
+        btnSave.style.display = '';
+        btnSave.onclick = () => {
+            log.raw = encryptData(document.getElementById('ed-a-raw').value);
+            log.refined = encryptData(document.getElementById('ed-a-ref').value);
+            saveData(); renderAlchemyLogs(); modal.classList.remove('open');
+            showCustomAlert("「煉金紀錄已更新。」", "SAVED");
+        };
+
+        document.getElementById('btn-delete-detail').onclick = () => {
+            showCustomConfirm("「確定要刪除此則煉金紀錄嗎？」", () => {
+                State.alchemyLogs.splice(index, 1); saveData(); renderAlchemyLogs(); modal.classList.remove('open');
+            }, "DELETE DATA");
+        };
+        modal.classList.add('open');
+    }
+
+    function deleteAlchemyLog(e, i) {
+        e.stopPropagation();
+        showCustomConfirm("「確定要刪除此則煉金紀錄嗎？」", () => { State.alchemyLogs.splice(i, 1); saveData(); renderAlchemyLogs(); }, "DELETE DATA");
     }
 
     function clearAlchemyLogs() {
-        showCustomConfirm("「確定要清空煉金爐嗎？」", () => {
-            State.alchemyLogs = []; 
-            saveData(); 
-            renderAlchemyLogs();
-        }, "RESET CRUCIBLE");
+        showCustomConfirm("「確定要清空煉金爐嗎？」", () => { State.alchemyLogs = []; saveData(); renderAlchemyLogs(); }, "RESET CRUCIBLE");
     }
 
-    // --- Incinerator Logic ---
     function shredEmotion() {
-        const area = document.getElementById('confess-text');
-        const text = area.value;
-        if(!text) return;
-
-        // 1. 轉為亂碼 (使用隨機Key或當前Key加密，重點是視覺效果)
-        // 這裡直接用隨機字串模擬 "不可逆銷毀" 的過程
-        const randomKey = Math.random().toString(36);
-        const garbled = CryptoJS.AES.encrypt(text, randomKey).toString();
-        
-        area.value = garbled; // 顯示亂碼
-        area.style.color = "var(--color-alert)";
-        area.style.transition = "all 1s";
-        area.style.opacity = 0.5;
-
-        // 2. 銷毀
+        const a = document.getElementById('confess-text'); if (!a.value) return;
+        a.value = CryptoJS.AES.encrypt(a.value, Math.random().toString(36)).toString();
+        a.style.color = "var(--color-alert)"; a.style.transition = "all 1s"; a.style.opacity = 0.5;
         setTimeout(() => {
-            area.style.transform = "scale(0.95)";
-            area.style.opacity = 0;
-            
+            a.style.transform = "scale(0.95)"; a.style.opacity = 0;
             setTimeout(() => {
-                area.value = '';
-                area.style.color = "#666";
-                area.style.opacity = 1;
-                area.style.transform = "scale(1)";
-                State.stardust += 10;
-                saveData(); updateUI();
-                
+                a.value = ''; a.style.color = "#666"; a.style.opacity = 1; a.style.transform = "scale(1)";
+                State.stardust += 10; saveData(); updateUI();
                 showCustomAlert("「情緒已焚毀，你現在很安全。」Stardust +10", "INCINERATION COMPLETE");
             }, 1000);
         }, 800);
     }
 
-    function saveData() { 
-        localStorage.setItem('stardust', State.stardust); 
-        localStorage.setItem('crystals', State.crystals); 
+    function saveData() {
+        localStorage.setItem('stardust', State.stardust); localStorage.setItem('crystals', State.crystals);
         localStorage.setItem('alchemy_logs', JSON.stringify(State.alchemyLogs));
         localStorage.setItem('crystal_logs', JSON.stringify(State.crystalLogs));
     }
@@ -1197,132 +802,62 @@ window.addEventListener('load', function() {
         const bar = document.getElementById('mana-bar');
         bar.style.width = `${State.mana}%`;
         bar.style.background = State.mana < 30 ? 'var(--color-alert)' : 'var(--color-dusk)';
-        
-        // 水晶槽位邏輯：
-        // 1->1, 2->2, 3->3, 4->4 (full), 5->1 (reset)
-        let count = State.crystals;
-        let filledCount = 0;
-        if (count > 0) {
-            filledCount = count % 4;
-            if (filledCount === 0) filledCount = 4; // 滿4顆顯示全亮
-            if (count > 4 && (count % 4 === 1)) filledCount = 1; // 第5顆顯示1顆
-        }
-
-        for(let i=1; i<=4; i++) {
-            const el = document.getElementById(`c${i}`);
-            if(i <= filledCount) el.classList.add('filled'); else el.classList.remove('filled');
-        }
+        let fc = 0;
+        if (State.crystals > 0) { fc = State.crystals % 4; if (fc === 0) fc = 4; if (State.crystals > 4 && State.crystals % 4 === 1) fc = 1; }
+        for (let i = 1; i <= 4; i++) document.getElementById(`c${i}`).classList.toggle('filled', i <= fc);
     }
 
-    // DATA MANAGEMENT (資料管理)
     function exportData() {
-        // 1. 收集所有關鍵資料
-        const backupData = {
-            version: "3.8.2",
-            timestamp: new Date().toISOString(),
-            // 核心紀錄
+        const bd = { version: "3.9.0", timestamp: new Date().toISOString(),
             alchemy_logs: JSON.parse(localStorage.getItem('alchemy_logs') || "[]"),
             crystal_logs: JSON.parse(localStorage.getItem('crystal_logs') || "[]"),
-            // 設定與密碼
             app_password: localStorage.getItem('app_password') || "",
             is_unlocked: localStorage.getItem('is_unlocked') || "false",
-            // 時間階段設定
             phase_settings: JSON.parse(localStorage.getItem('phase_settings') || JSON.stringify({ solar: 9, dusk: 18, sanctum: 23, void: 2 })),
-            // 貨幣與狀態
-            stardust: localStorage.getItem('stardust') || "0",
-            crystals: localStorage.getItem('crystals') || "0",
-            mana: localStorage.getItem('mana') || "100"
-        };
-
-        // 2. 轉換為 JSON 字串
-        const dataStr = JSON.stringify(backupData, null, 2);
-        
-        // 3. 建立下載連結
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        
-        // 4. 設定檔名 (含日期)
-        const date = new Date();
-        const dateStr = `${date.getFullYear()}${String(date.getMonth()+1).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}`;
-        a.href = url;
-        a.download = `STSA_backup_${dateStr}.json`;
-        
-        // 5. 觸發下載
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
+            stardust: localStorage.getItem('stardust') || "0", crystals: localStorage.getItem('crystals') || "0", mana: localStorage.getItem('mana') || "100" };
+        const blob = new Blob([JSON.stringify(bd, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob), a = document.createElement('a'), d = new Date();
+        a.href = url; a.download = `STSA_backup_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         showCustomAlert("「聖域紀錄已備份。」", "EXPORT SUCCESS");
     }
 
-    function importData(inputElement) {
-        const file = inputElement.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
+    function importData(el) {
+        const file = el.files[0]; if (!file) return;
+        const r = new FileReader();
+        r.onload = function(e) {
             try {
-                const data = JSON.parse(e.target.result);
-
-                // 驗證簡單的格式 (檢查是否有必要的欄位)
-                if (!data.phase_settings && !data.alchemy_logs) {
-                    throw new Error("Invalid Format");
-                }
-
+                const d = JSON.parse(e.target.result);
+                if (!d.phase_settings && !d.alchemy_logs) throw new Error("Invalid");
                 showCustomConfirm("「確定匯入此聖域紀錄嗎？目前的紀錄將被覆蓋。」", () => {
-                    // 開始還原資料
-                    if (data.alchemy_logs) localStorage.setItem('alchemy_logs', JSON.stringify(data.alchemy_logs));
-                    if (data.crystal_logs) localStorage.setItem('crystal_logs', JSON.stringify(data.crystal_logs));
-                    
-                    // 還原密碼
-                    if (data.app_password !== undefined) localStorage.setItem('app_password', data.app_password);
-                    if (data.is_unlocked !== undefined) localStorage.setItem('is_unlocked', data.is_unlocked);
-
-                    // 還原時間設定
-                    if (data.phase_settings) localStorage.setItem('phase_settings', JSON.stringify(data.phase_settings));
-
-                    // 還原數值
-                    if (data.stardust) localStorage.setItem('stardust', data.stardust);
-                    if (data.crystals) localStorage.setItem('crystals', data.crystals);
-                    if (data.mana) localStorage.setItem('mana', data.mana);
-
-                    // 重新整理頁面以套用變更
+                    if (d.alchemy_logs) localStorage.setItem('alchemy_logs', JSON.stringify(d.alchemy_logs));
+                    if (d.crystal_logs) localStorage.setItem('crystal_logs', JSON.stringify(d.crystal_logs));
+                    if (d.app_password !== undefined) localStorage.setItem('app_password', d.app_password);
+                    if (d.is_unlocked !== undefined) localStorage.setItem('is_unlocked', d.is_unlocked);
+                    if (d.phase_settings) localStorage.setItem('phase_settings', JSON.stringify(d.phase_settings));
+                    if (d.stardust) localStorage.setItem('stardust', d.stardust);
+                    if (d.crystals) localStorage.setItem('crystals', d.crystals);
+                    if (d.mana) localStorage.setItem('mana', d.mana);
                     showCustomAlert("「聖域成功重塑，聖域即刻重啟。」", "IMPORT COMPLETE");
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-
+                    setTimeout(() => { window.location.reload(); }, 1500);
                 }, "OVERWRITE WARNING");
-
-            } catch (err) {
-                console.error(err);
-                showCustomAlert("「格式錯誤或損毀。」", "IMPORT FAILED");
-            }
-            
-            // 清空 input 讓同個檔案可以再次被選取
-            inputElement.value = '';
+            } catch (err) { showCustomAlert("「格式錯誤或損毀。」", "IMPORT FAILED"); }
+            el.value = '';
         };
-        reader.readAsText(file);
+        r.readAsText(file);
     }
 
     function wipeAllData() {
         showCustomConfirm("「即將清空聖域。確定執行？」", () => {
-            // 再次確認 (Double Confirmation)
             setTimeout(() => {
-                const doubleCheck = confirm("「這項操作將徹底清空並重塑聖域。是否繼續？」(請記得在清除後關閉並重啟本程式。)");
-                if (doubleCheck) {
+                if (confirm("「這項操作將徹底清空並重塑聖域。是否繼續？」(請記得在清除後關閉並重啟本程式。)")) {
                     localStorage.clear();
                     showCustomAlert("「聖域已重塑為初始狀態。」", "ALL RESET");
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    setTimeout(() => { window.location.reload(); }, 1500);
                 }
             }, 200);
         }, "CRITICAL WARNING");
     }
 </script>
-
 </body>
 </html>

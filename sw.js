@@ -1,4 +1,4 @@
-const CACHE_NAME = 'STSA v3.9.3';
+const CACHE_NAME = 'STSA v3.9.7';
 const urlsToCache = [
   '/SanctumTheSoulAlchemist/',
   '/SanctumTheSoulAlchemist/index.html',
