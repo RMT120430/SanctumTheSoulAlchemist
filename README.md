@@ -6,7 +6,7 @@ This program is a birthday gift to myself.
 To myself turning 29 this year — from tomorrow onwards, please promise me this: protect and cherish that part of you that shimmers like crystal in the light.
 
 ---
-## Current Version: v3.9.5
+## Current Version: v3.9.8
 ---
 ## Most features of this program are symbolic in nature
 
